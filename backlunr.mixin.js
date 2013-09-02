@@ -1,9 +1,11 @@
-  Backbone.Collection.Lunr = Backbone.Collection.extend({
+  Backbone.LunrMixin = {
     lunroptions: {
         fields: []
     },
 
     initialize: function(models, options) {
+        this._lunrInitialize();
+
         this.on('add', _.bind(this._lunrAdd, this));
         this.on('remove', _.bind(this._lunrRemove, this));
         this.on('change', _.bind(this._lunrChange, this));
@@ -67,7 +69,6 @@
         var that = this;
 
         this._lunrInitialize();
-        Backbone.Collection.prototype.reset.apply(this, arguments);
 
         this.each(function(model) {
             that._lunrAdd(model);
@@ -99,4 +100,4 @@
 
         return _res;
     }
-});
+};

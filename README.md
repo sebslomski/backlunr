@@ -3,42 +3,44 @@ backlunr
 
 is a solution to bring [Backbone Collections](http://documentcloud.github.com/backbone/#Collection) together with the browser fulltext search engine [Lunr.js](http://lunrjs.com/).
 
-*Written in coffee-script*
-
-**INFO: all examples are written in coffee-script**
 
 
 ## Install
 
 To use **backlunr** you first have to load the dependencies:
-- [Underscore](http://documentcloud.github.com/underscore) 
-- [Backbone](http://documentcloud.github.com/backbone) 
+- [Underscore](http://documentcloud.github.com/underscore)
+- [Backbone](http://documentcloud.github.com/backbone)
+- [Cocktail](https://github.com/onsi/cocktail)
 - [Lunr.js](http://lunrjs.com/)
 
-Then add the `backlunr.js` script to your page.
+Then add the `backlunr.mixin.js` script to your page.
 
 ## Usage
 
 ### Config
 
-To use the `lunr.js` fulltext search within a collection you have to load `backlunr.js` and use `Backbone.Collection.Lunr` instead of `Backbone.Collection.Lunr`
+To use the `lunr.js` fulltext search within a collection you have to load `backlunr.js` and use either `Backbone.Collection.Lunr` instead of `Backbone.Collection`.
+If you want to use the mixin instead of the new base collection, just add the mixin with Cocktail as in 'backlunr.collection.js'
 
 The only thing you have to define are the fields to index.
 
 **Config Example:**
 
-```coffee
-class User extends Backbone.Model
+```js
+var User = Backbone.Model.extend();
 
-class Users extends Backbone.Collection.Lunr
-	model: User
-	lunroptions: 
-		fields: [
-			{ name: "firstname", boost: 10 }
-			{ name: "lastname", boost: 5 }
-			{ name: "email" }
-			{ name: "address" }
-		]
+var Users = Backbone.Collection.extend({
+    model: User,
+    lunroptions: {
+        fields: [
+            { name: "firstname", boost: 10 },
+            { name: "lastname", boost: 5 },
+            { name: "email" },
+            { name: "address" }
+        ]
+    }
+});
+Cocktail.mixin(Users, Backbone.LunrMixin);
 ```
 
 #### lunroptions
@@ -56,21 +58,20 @@ To search within your collection you just have to call `.search( "[ term ]" )`.
 
 **Search Example:**
 
-```coffee
-# add some users
-usersCollection = new Users [
-	firstname: "Fritz", lastname: "Maier", "email": "fmaier@maier.com", "address": "Teststreet 123"
-, 
-	firstname: "Hans", lastname: "Schubert", "email": "hschubert@maier.com", "address": "Checkway 987"
-]
+```js
+// add some users
+var usersCollection = new Users([
+    { firstname: "Fritz", lastname: "Maier", "email": "fmaier@maier.com", "address": "Teststreet 123" },
+    { firstname: "Hans", lastname: "Schubert", "email": "hschubert@maier.com", "address": "Checkway 987" }
+]);
 
-result = usersCollection.search( "Fritz" )
-# [ User( Fritz ) ]
-# returns an array of matching models sorted by the result scoring
+var result = usersCollection.search("Fritz");
+// [ User( Fritz ) ]
+// returns an array of matching models sorted by the result scoring
 
-result.toJSON()
-# [ {firstname: "Fritz", lastname: "Maier", "email": "fmaier@maier.com", "address": "Teststreet 123"} ]
-# the single special method `toJSON` of the array returns all models converted by `model.toJSON()`.
+result.toJSON();
+// [ {firstname: "Fritz", lastname: "Maier", "email": "fmaier@maier.com", "address": "Teststreet 123"} ]
+// the single special method `toJSON` of the array returns all models converted by `model.toJSON()`.
 ```
 
 ### Methods
@@ -100,6 +101,10 @@ If you define `raw=true` you will receive an array with object like `{ score: 0.
 `backlunr` is work in progress. Your ideas, suggestions etc. are very welcome.
 
 ## Changelog
+
+#### `0.3`
+
+* Ported from CoffeeScript to JavaScript to add mixin functionality
 
 #### `0.2.1`
 
